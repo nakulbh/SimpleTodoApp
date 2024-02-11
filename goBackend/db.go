@@ -49,18 +49,18 @@ func connect(uri string) (*mongo.Client, context.Context,
 	return client, ctx, cancel, err
 }
 
-// This is a user defined method that accepts 
+// This is a user defined method that accepts
 // mongo.Client and context.Context
 // This method used to ping the mongoDB, return error if any.
-func ping(client *mongo.Client, ctx context.Context) error{
- 
-    // mongo.Client has Ping to ping mongoDB, deadline of 
-    // the Ping method will be determined by cxt
-    // Ping method return error if any occurred, then
-    // the error can be handled.
-    if err := client.Ping(ctx, readpref.Primary()); err != nil {
-        return err
-    }
-    fmt.Println("connected successfully")
-    return nil
+func ping(client *mongo.Client, ctx context.Context) error {
+
+	// mongo.Client has Ping to ping mongoDB, deadline of
+	// the Ping method will be determined by cxt
+	// Ping method return error if any occurred, then
+	// the error can be handled.
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+		return err
+	}
+	fmt.Println("connected successfully")
+	return nil
 }

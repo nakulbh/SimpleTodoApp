@@ -1,47 +1,72 @@
-const express = require('express')
-const {createTodo, updateTodo} = require("./types")
-
-console.log(createTodo)
+const express = require("express");
+const { createTodo, updateTodo } = require("./types");
+const { todo } = require("./db");
 
 const app = express();
 
 app.use(express.json());
 
-app.post("/todo", (req, res) =>{
-    let todo = {
-        title: req.body.title,
-        description: req.body.description
-    }
+app.post("/todo", async (req, res) => {
+  // console.log(todo)
 
-    try {
-        const validateTodo = createTodo.parse(todo)
-        console.log("data is valid: ", validateTodo)
-        
-    } catch (error) {
-        console.error("validation error: ", error)
-        
-    }
+  const createPayload = req.body;
+  try {
+    const validateTodo = createTodo.safeParse(createPayload);
+    console.log("data is valid: ", validateTodo);
+    const newTodo = await todo.create({
+      title: createPayload.title,
+      description: createPayload.description,
+      completed: false,
+    });
 
-})
+    res.json({
+      msg: `Todo created successfully ${newTodo._id}`,
+    });
+  } catch (error) {
+    console.error("validation error: ", error);
+    res.status(500).json({
+      msg: "validation error",
+    });
+  }
 
-app.get("/todos", (req, res) =>{
-let todo = {
-        title: req.body.title,
-        description: req.body.description
-    }
+  res.json({
+    msg: `Course created successfully ${newTodo._id}`,
+  });
+});
 
-    try {
-        const validateTodo = createTodo.parse(todo)
-        console.log("data is valid: ", validateTodo)
-        
-    } catch (error) {
-        console.error("validation error: ", error)
-        
-    }
+app.get("/todos", async (req, res) => {
+  try {
+    const response = await todo.find();
 
-} )
+    res.json({
+      todo: response,
+    });
+  } catch (error) {
+    console.error("error: ", error);
 
-app.put("/todos", (req, res) =>{
+    res.status(500).json({
+      msg: "Error fetching todos",
+    });
+  }
+});
 
+app.put("/todos", async (req, res) => {
+  const updatePlayload = req.body;
+  try {
+    const validateTodo = updateTodo.safeParse(updatePlayload);
+    console.log(validateTodo);
+
+    console.log(updatePlayload);
+
+    await todo.findOneAndUpdate(updatePlayload, { compelted: true });
+    res.json({
+      msg: "todo marked as completed",
+    });
+  } catch (error) {
+    console.error("validation error: ", error);
+    res.status(500).json({
+      msg: "validation error",
+    });
+  }
 });
 app.listen(3000);
